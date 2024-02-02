@@ -10,7 +10,7 @@ function App(): React.JSX.Element {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName='settings'
+      initialRouteName='chats'
     >
       <Stack.Screen name='chats' component={ChatsScreen} />
       <Stack.Screen name='settings' component={SettingsScreen} />
