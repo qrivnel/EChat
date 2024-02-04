@@ -1,21 +1,10 @@
 import React from 'react';
 
-//SCREENS
-import { ChatsScreen, SettingsScreen } from './src/screens'
-
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-const Stack = createNativeStackNavigator();
+//NAVIGATOR
+import RootNavigator from './src/navigations/RootNavigator'
 
 function App(): React.JSX.Element {
-  return (
-    <Stack.Navigator
-      screenOptions={{ headerShown: false }}
-      initialRouteName='chats'
-    >
-      <Stack.Screen name='chats' component={ChatsScreen} />
-      <Stack.Screen name='settings' component={SettingsScreen} />
-    </Stack.Navigator>
-  );
+  return <RootNavigator />
 }
 
 export default App;
