@@ -7,14 +7,19 @@ import { ChatsScreen, SettingsScreen } from '../screens'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
 
-export default function UserStacks() {
+export default function UserStacks({ setIsAuth }) {
     return (
         <Tab.Navigator
-        initialRouteName='chats'
-        screenOptions={{headerShown: false}}
+            initialRouteName='chats'
+            screenOptions={{ headerShown: false }}
         >
-            <Tab.Screen name="chats" component={ChatsScreen} />
-            <Tab.Screen name="settings" component={SettingsScreen} />
+            <Tab.Screen
+                name="chats"
+                component={ChatsScreen} />
+            <Tab.Screen
+                name="settings" >
+                {(props) => <SettingsScreen {...props} setIsAuth={setIsAuth} />}
+            </Tab.Screen>
         </Tab.Navigator>
     )
 }

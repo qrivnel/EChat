@@ -1,6 +1,8 @@
 import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 //FIREBASE
 import firestore from '@react-native-firebase/firestore'
 
@@ -13,10 +15,10 @@ export default function LoginScreen({ setIsAuth, navigation }) {
             firestore().collection('users').get()
                 .then(res => {
                     res.docs.map(val => {
-                        if (username == val.data().username && password == val.data().password) {
+                        if (username == val.data().username && password == val.data().password){
+                            AsyncStorage.setItem('currentuser', val.id)
                             setIsAuth(true)
                         }
-
                     })
                 })
         }
@@ -24,6 +26,10 @@ export default function LoginScreen({ setIsAuth, navigation }) {
 
     const toSignup = () => {
         navigation.navigate('signup')
+    }
+
+    const test = () => {
+        AsyncStorage.getItem('currentuser').then(res=>console.log(res))
     }
 
     return (
@@ -57,6 +63,12 @@ export default function LoginScreen({ setIsAuth, navigation }) {
                     style={[styles.button, { backgroundColor: '#969696' }]}
                     onPress={toSignup} >
                     <Text style={styles.buttonText}>Kayıt ol</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    id='test'
+                    style={[styles.button, { backgroundColor: '#969696' }]}
+                    onPress={test} >
+                    <Text style={styles.buttonText}>test</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
