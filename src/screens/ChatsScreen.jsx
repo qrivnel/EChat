@@ -1,42 +1,40 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, SafeAreaView, StyleSheet, FlatList } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, FlatList, TouchableOpacity } from 'react-native'
 import firestore from '@react-native-firebase/firestore';
 
 //COMPONENTS
-import Chat from '../components/Chat'
+import ChatComponent from '../components/ChatComponent'
 
-export default function ChatsScreen() {
-  const [users, setUsers] = useState()
-  
+export default function ChatsScreen({ currentUser, navigation }) {
+  const [chats, setChats] = useState()
+
   useEffect(() => {
-    firestore().collection('users').get()
-      .then(data => setUsers(data.docs))
-  }, [])
-
-  const data = Array(20)
-    .fill(null)
-    .map((_, i) => ({
-      number: i
-    }))
-
-  return (
-    <SafeAreaView style={styles.mainView}>
+    if (currentUser != undefined)
+      firestore().collection('chats').where('users', 'array-contains', currentUser.id).get()
+        .then(data => setChats(data.docs))
+  }, [currentUser])
+  return currentUser != undefined
+    ? <SafeAreaView style={styles.mainView}>
       {
-        users == undefined
+        chats == undefined
           ? <Text> Yükleniyor... </Text>
           : <FlatList
-            data={users}
+            data={chats}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
               <View>
-                <Chat user={item.data()} />
+                <ChatComponent
+                  userId={item.data().users.find(user => user != currentUser.id)}
+                  subtitle={'Henüz mesaj yok'}
+                  onPress={() => navigation.navigate('chatdetail', { chatId: item.id, userId: item.data().users.find(user => user != currentUser.id) })} />
                 <View style={styles.serprator}></View>
               </View>
-            )}
+            )
+            }
           />
       }
     </SafeAreaView>
-  )
+    : <Text> Yükleniyor... </Text>
 }
 
 const styles = StyleSheet.create({

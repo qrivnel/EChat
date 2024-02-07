@@ -28,10 +28,6 @@ export default function LoginScreen({ setIsAuth, navigation }) {
         navigation.navigate('signup')
     }
 
-    const test = () => {
-        AsyncStorage.getItem('currentuser').then(res=>console.log(res))
-    }
-
     return (
         <SafeAreaView style={styles.mainView}>
             <View style={styles.textInputsView}>
@@ -63,12 +59,6 @@ export default function LoginScreen({ setIsAuth, navigation }) {
                     style={[styles.button, { backgroundColor: '#969696' }]}
                     onPress={toSignup} >
                     <Text style={styles.buttonText}>Kayıt ol</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    id='test'
-                    style={[styles.button, { backgroundColor: '#969696' }]}
-                    onPress={test} >
-                    <Text style={styles.buttonText}>test</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
