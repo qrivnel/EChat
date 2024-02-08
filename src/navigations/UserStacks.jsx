@@ -43,11 +43,6 @@ export default function UserStacks({ setIsAuth }) {
                 name="settings" >
                 {(props) => <SettingsScreen {...props} setIsAuth={setIsAuth} currentUser={currentUser} />}
             </Tab.Screen>
-
-            <Tab.Screen
-                name="profile" >
-                {(props) => <ProfileScreen {...props} currentUser={currentUser} />}
-            </Tab.Screen>
         </Tab.Navigator>
     )
     return (
@@ -56,42 +51,15 @@ export default function UserStacks({ setIsAuth }) {
             screenOptions={{ headerShown: false }}
         >
             <Stack.Screen name='home' component={Home} />
+            <Stack.Screen
+                name="profile" >
+                {(props) => <ProfileScreen {...props} currentUser={currentUser} />}
+            </Stack.Screen>
             <Stack.Screen name='chatdetail'>
                 {(props) => <ChatScreen {...props} currentUser={currentUser} />}
             </Stack.Screen>
             <Stack.Screen name='contact' component={ContactScreen} />
         </Stack.Navigator>
-        // <Tab.Navigator
-        //     initialRouteName='chats'
-        //     screenOptions={{ headerShown: false }}
-        // >
-        //     <Tab.Screen
-        //         name="chats">
-        //         {
-        //             () => (
-        //                 <Stack.Navigator
-        //                 initialRouteName='chatlists'
-        //                 screenOptions={{headerShown: false}}>
-        //                     <Stack.Screen name='chatslist'>
-        //                         {(props) => <ChatsScreen {...props} currentUser={currentUser} />}
-        //                     </Stack.Screen>
-        //                     <Stack.Screen name='chatdetail' component={ChatScreen} />
-        //                     <Stack.Screen name='contact' component={ContactScreen} />
-        //                 </Stack.Navigator>
-        //             )
-        //         }
-        //     </Tab.Screen>
-
-        //     <Tab.Screen
-        //         name="settings" >
-        //         {(props) => <SettingsScreen {...props} setIsAuth={setIsAuth} currentUser={currentUser} />}
-        //     </Tab.Screen>
-
-        //     <Tab.Screen
-        //         name="profile" >
-        //         {(props) => <ProfileScreen {...props} currentUser={currentUser} />}
-        //     </Tab.Screen>
-        // </Tab.Navigator>
     )
 }
 

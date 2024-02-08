@@ -3,22 +3,22 @@ import React from 'react'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function SettingsScreen({ setIsAuth, currentUser }) {
+export default function SettingsScreen({ setIsAuth, navigation }) {
     const logout = () => {
         AsyncStorage.removeItem('currentuser')
         setIsAuth(false)
     }
 
     const navigateToProfile = () => {
-
+        navigation.navigate('profile')
     }
     return (
         <SafeAreaView style={styles.mainView}>
             <TouchableOpacity
-            id='profile'
-            style={{}}
-            onPress={navigateToProfile}>
-                
+                id='profile'
+                style={[styles.logoutButton, { backgroundColor: 'lightblue' }]}
+                onPress={navigateToProfile}>
+                <Text style={styles.logoutButtonText}>Profil</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 id='logoutbutton'
@@ -33,7 +33,7 @@ export default function SettingsScreen({ setIsAuth, currentUser }) {
 const styles = StyleSheet.create({
     mainView: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         alignItems: 'center'
     },
     logoutButton: {
