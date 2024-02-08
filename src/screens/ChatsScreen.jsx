@@ -10,30 +10,31 @@ export default function ChatsScreen({ currentUser, navigation }) {
 
   useEffect(() => {
     if (currentUser != undefined)
-      firestore().collection('chats').where('users', 'array-contains', currentUser.id).get()
-        .then(data => setChats(data.docs))
-  }, [currentUser])
+      firestore().collection('chats')
+        .where('users', 'array-contains', currentUser.id)
+        .onSnapshot(data => setChats(data.docs))
+  }, [])
+
   return currentUser != undefined
     ? <SafeAreaView style={styles.mainView}>
       {
-        chats == undefined
-          ? <Text> Yükleniyor... </Text>
-          : <FlatList
+        chats != undefined
+          ? <FlatList
             data={chats}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
               <View>
                 <ChatComponent
                   userId={item.data().users.find(user => user != currentUser.id)}
-                  subtitle={'Henüz mesaj yok'}
+                  chatId={item.id}
                   onPress={() => navigation.navigate('chatdetail', { chatId: item.id, userId: item.data().users.find(user => user != currentUser.id) })} />
                 <View style={styles.serprator}></View>
               </View>
             )
             }
-          />
+          /> : <Text> Yükleniyor... </Text>
       }
-    </SafeAreaView>
+    </SafeAreaView >
     : <Text> Yükleniyor... </Text>
 }
 

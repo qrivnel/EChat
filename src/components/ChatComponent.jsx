@@ -6,28 +6,68 @@ import ProfilePicture from './ProfilePicture'
 
 import firestore from '@react-native-firebase/firestore'
 
-export default function ChatComponent({ userId, subtitle, onPress, route }) {
+export default function ChatComponent({ userId, onPress, chatId }) {
   const [user, setUser] = useState()
+  const [time, setTime] = useState('')
+  const [subtitle, setSubtitle] = useState('Henüz mesaj yok')
+
+  const prepareTime = (seconds) => {
+    const today = new Date()
+    const oneDayAgo = new Date(today.getTime() - (24 * 60 * 60 * 1000))
+    const oneWeekAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000))
+    const messageDate = new Date(seconds * 1000)
+
+    const clockString = `${messageDate.getHours()}:${
+      messageDate.getMinutes() < 10
+        ? '0' + messageDate.getMinutes()
+        : messageDate.getMinutes()
+    }`
+    const dayName = messageDate.toLocaleString('tr-TR', { weekday: 'long' })
+    const dateString = `${today.getDate() < 10
+      ? '0' + messageDate.getDate()
+      : messageDate.getDate()
+      }.${messageDate.getMonth() < 10
+        ? '0' + messageDate.getMonth()
+        : messageDate.getMonth()
+      }.${messageDate.getFullYear()}`
+
+    if (messageDate > oneDayAgo)
+      setTime(clockString)
+    else if (messageDate < oneDayAgo && messageDate > oneWeekAgo)
+      setTime(dayName)
+    else if (messageDate < oneWeekAgo)
+      setTime(dateString)
+  }
+
+  useEffect(() => {
+    firestore().collection('chats').doc(chatId)
+    .onSnapshot(data=>{
+      prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
+      setSubtitle(data.data().messages[data.data().messages.length - 1].text)
+    })
+  }, [])
 
   useEffect(() => {
     firestore().collection('users').doc(userId).get()
       .then(res => setUser(res.data()))
   }, [])
-  
+
   return user != undefined
     ? <TouchableOpacity
       style={styles.mainView}
       onPress={onPress}>
 
-      <ProfilePicture userData={user} width={100} height={100} />
+      <ProfilePicture userData={user} width={80} height={80} />
 
       <View style={styles.contextView}>
         <View style={styles.topView}>
           <Text style={styles.titleText}> {user.name} {user.surname} </Text>
-          <Text> TIME </Text>
+          <Text> {time} </Text>
         </View>
         <View style={styles.bottView}>
-          <Text style={styles.subtitleText}> {subtitle} </Text>
+          <Text style={styles.subtitleText}> {
+            subtitle
+          } </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -49,7 +89,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     width: '100%',
-    height: 100,
+    height: 80,
     marginTop: 5
   },
   imageView: {

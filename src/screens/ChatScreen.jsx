@@ -1,22 +1,60 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 //COMPONENTS
 import ProfilePicture from '../components/ProfilePicture'
+import Message from '../components/Message'
 //FIREBASE
 import firestore from '@react-native-firebase/firestore'
 //ASSETS
 import LeftArrow from '../assets/left-arrow.svg'
 import SendIcon from '../assets/SendIcon.svg'
 
-export default function ChatScreen({ route, navigation }) {
+export default function ChatScreen({ route, navigation, currentUser }) {
     const [user, setUser] = useState()
+    const [messages, setMessages] = useState([])
     const [textInputHeight, setTextInputHeight] = useState(30)
+    const [message, setMessage] = useState()
 
     useEffect(() => {
         firestore().collection('users').doc(route.params.userId).get()
             .then(res => setUser(res))
     }, [])
+
+    useEffect(() => {
+        firestore().collection('chats').doc(route.params.chatId)
+            .onSnapshot(res => setMessages(res.data().messages))
+    }, [])
+
+
+    const sendMessage = async () => {
+        if (message != undefined && message != '') {
+            const previousMessageIndex = await firestore().collection('chats').doc(route.params.chatId).get()
+                .then(res => res.data().messages.length != 0
+                    ? res.data().messages[res.data().messages.length - 1].id
+                    : -1
+                )
+            firestore().collection('chats').doc(route.params.chatId).update({
+                messages: firestore.FieldValue.arrayUnion({
+                    id: previousMessageIndex + 1,
+                    user: {
+                        id: currentUser.id,
+                        username: currentUser.data().username
+                    },
+                    text: message,
+                    createdAt: new Date(),
+                })
+            })
+        }
+        setMessage('')
+    }
+
+    const changeInputHeight = (height) => {
+        if (Platform.OS == 'ios' && height < 105)
+            setTextInputHeight(height + 13)
+        else if (Platform.OS == 'android' && height < 125)
+            setTextInputHeight((height - 15) + 13)
+    }
 
     const navigateToChatList = () => {
         navigation.navigate('chatlist')
@@ -30,9 +68,7 @@ export default function ChatScreen({ route, navigation }) {
             <View
                 id='headerview'
                 style={styles.headerView}>
-
                 <TouchableOpacity
-                    style={{}}
                     onPress={navigateToChatList}>
                     <LeftArrow
                         width={25}
@@ -54,18 +90,36 @@ export default function ChatScreen({ route, navigation }) {
 
 
             </View>
+            {
+                messages.length != 0
+                    ? <FlatList
+                        data={messages}
+                        keyExtractor={item => item.id}
+                        renderItem={({ item }) => (
+                            <Message messageIndex={item.id} username={item.user.username} text={item.text} date={item.createdAt} />
+                        )} />
+                    : <View style={{ position: 'relative', flex: 8 }}><Text> MESAJ YOK</Text></View>
+            }
 
-            <FlatList />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 <View
                     id='bottomview'
-                    style={{ position: 'relative', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', bottom: 0, left: 0, right: 0, width: '100%', height: 50, backgroundColor: 'e0e0e0', borderTopWidth: 3, borderColor: '#d6d6d6', padding: 5 }}>
+                    style={[styles.bottomView, { height: textInputHeight + 20 }]}>
                     <TextInput
-                        multiline={true}
-                        style={{ width: 300, height: 30, borderWidth: 2, borderRadius: 10, paddingLeft: 10 }}
+                        id='textinput'
+                        multiline
+                        style={[styles.textInput, { height: textInputHeight }]}
+                        value={message}
+                        onContentSizeChange={(event) => {
+                            changeInputHeight(event.nativeEvent.contentSize.height)
+                        }}
+                        onChangeText={setMessage}
                     />
-                    <SendIcon width={28} height={28} fill={'blue'} />
+                    <TouchableOpacity
+                        onPress={sendMessage}>
+                        <SendIcon width={28} height={28} fill={'blue'} />
+                    </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
 
@@ -74,7 +128,28 @@ export default function ChatScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+    textInput: {
+        width: 300,
+        borderWidth: 2,
+        borderRadius: 10,
+        paddingLeft: 10,
+    },
+    bottomView: {
+        position: 'relative',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        backgroundColor: 'e0e0e0',
+        borderTopWidth: 3,
+        borderColor: '#d6d6d6',
+    },
     headerView: {
+        display: 'flex',
+        height: 60,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#e0e0e0',

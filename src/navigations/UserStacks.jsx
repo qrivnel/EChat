@@ -56,7 +56,9 @@ export default function UserStacks({ setIsAuth }) {
             screenOptions={{ headerShown: false }}
         >
             <Stack.Screen name='home' component={Home} />
-            <Stack.Screen name='chatdetail' component={ChatScreen} />
+            <Stack.Screen name='chatdetail'>
+                {(props) => <ChatScreen {...props} currentUser={currentUser} />}
+            </Stack.Screen>
             <Stack.Screen name='contact' component={ContactScreen} />
         </Stack.Navigator>
         // <Tab.Navigator
