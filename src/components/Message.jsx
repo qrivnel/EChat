@@ -1,18 +1,15 @@
 import { Platform, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
-//NPM
-
-export default function Message({ messageIndex, username, text, date }) {
-
+export default function Message({ messageIndex, user, text, time, bgcolor }) {
     return (
         <TouchableOpacity
-            style={styles.mainView}
-            onPress={() => {
-                console.log(date, messageIndex);
-            }}>
-            <Text style={styles.usernameText}>{username}:</Text>
+            style={[styles.mainView, { backgroundColor: bgcolor }]}>
+            <Text style={styles.usernameText}>{user.username}:</Text>
             <Text style={styles.messageText}> {text}</Text>
+            <Text style={{ fontSize: 15, color: 'gray', position: 'absolute', bottom: 0, right: 5 }}>{
+                `${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}:${time.getSeconds() < 10 ? '0' + time.getSeconds() : time.getSeconds()}`
+            }</Text>
         </TouchableOpacity>
 
     )

@@ -90,9 +90,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                 <TouchableOpacity
                     style={{ flexDirection: 'row', alignItems: 'center' }}
                     onPress={navigateToContactScreen}>
-                    {
-                        <ProfilePicture userData={user.data()} width={50} height={50} />
-                    }
+                    <ProfilePicture userData={user.data()} width={50} height={50} />
                     <Text
                         style={styles.usernameText}
                     > {user.data().username} </Text>
@@ -104,7 +102,11 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         ref={flatListRef}
                         data={messages}
                         renderItem={({ item }) => (
-                            <Message messageIndex={item.id} username={item.user.username} text={item.text} date={item.createdAt} />
+                            <Message messageIndex={item.id} user={item.user} text={item.text} time={new Date(item.createdAt.seconds * 1000)} bgcolor={
+                                item.user.id == currentUser.id
+                                                    ? 'lightgreen'
+                                                    : 'lightgray'   
+                            } />
                         )}
                         keyExtractor={item => item.id}
                         getItemLayout={(data, index) => (
