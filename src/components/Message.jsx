@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
         paddingVertical: Platform.OS == 'ios' ? 8 : 0,
     },
     mainView: {
+        height: 60,
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,

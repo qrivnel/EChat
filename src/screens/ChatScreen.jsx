@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 //COMPONENTS
 import ProfilePicture from '../components/ProfilePicture'
@@ -11,6 +11,8 @@ import LeftArrow from '../assets/left-arrow.svg'
 import SendIcon from '../assets/SendIcon.svg'
 
 export default function ChatScreen({ route, navigation, currentUser }) {
+    const flatListRef = useRef(null);
+
     const [user, setUser] = useState()
     const [messages, setMessages] = useState([])
     const [textInputHeight, setTextInputHeight] = useState(30)
@@ -25,6 +27,15 @@ export default function ChatScreen({ route, navigation, currentUser }) {
         firestore().collection('chats').doc(route.params.chatId)
             .onSnapshot(res => setMessages(res.data().messages))
     }, [])
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, user]);
+
+    const scrollToBottom = () => {
+        if (flatListRef.current != null)
+            flatListRef.current.scrollToEnd({ animated: true });
+    };
 
 
     const sendMessage = async () => {
@@ -86,18 +97,21 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         style={styles.usernameText}
                     > {user.data().username} </Text>
                 </TouchableOpacity>
-
-
-
             </View>
             {
                 messages.length != 0
                     ? <FlatList
+                        ref={flatListRef}
                         data={messages}
-                        keyExtractor={item => item.id}
                         renderItem={({ item }) => (
                             <Message messageIndex={item.id} username={item.user.username} text={item.text} date={item.createdAt} />
-                        )} />
+                        )}
+                        keyExtractor={item => item.id}
+                        getItemLayout={(data, index) => (
+                            { length: 76, offset: 76 * index, index }
+                        )}
+                        initialScrollIndex={messages.length - 1}
+                    />
                     : <View style={{ position: 'relative', flex: 8 }}><Text> MESAJ YOK</Text></View>
             }
 
