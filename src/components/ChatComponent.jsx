@@ -17,11 +17,10 @@ export default function ChatComponent({ userId, onPress, chatId }) {
     const oneWeekAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000))
     const messageDate = new Date(seconds * 1000)
 
-    const clockString = `${messageDate.getHours()}:${
-      messageDate.getMinutes() < 10
-        ? '0' + messageDate.getMinutes()
-        : messageDate.getMinutes()
-    }`
+    const clockString = `${messageDate.getHours()}:${messageDate.getMinutes() < 10
+      ? '0' + messageDate.getMinutes()
+      : messageDate.getMinutes()
+      }`
     const dayName = messageDate.toLocaleString('tr-TR', { weekday: 'long' })
     const dateString = `${today.getDate() < 10
       ? '0' + messageDate.getDate()
@@ -41,10 +40,12 @@ export default function ChatComponent({ userId, onPress, chatId }) {
 
   useEffect(() => {
     firestore().collection('chats').doc(chatId)
-    .onSnapshot(data=>{
-      prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
-      setSubtitle(data.data().messages[data.data().messages.length - 1].text)
-    })
+      .onSnapshot(data => {
+        if (data.data().messages.length != 0) {
+          prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
+          setSubtitle(data.data().messages[data.data().messages.length - 1].text)
+        }
+      })
   }, [])
 
   useEffect(() => {

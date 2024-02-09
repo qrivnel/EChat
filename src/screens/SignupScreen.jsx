@@ -37,7 +37,7 @@ export default function SignupScreen({ navigation }) {
 
   const createUser = () => {
     setClicked(true)
-    if (checkPasswords && name != '' && surname != '' && !usernameCheck() && username != '' && password != '' && passwordAgain != '') {
+    if (checkPasswords && name != '' && surname != '' && !usernameCheck && username != '' && password != '' && passwordAgain != '') {
       setIsLoading(true)
       firestore().collection('users').add({
         about: '',
@@ -118,6 +118,7 @@ export default function SignupScreen({ navigation }) {
             <TextInput
               style={styles.textInput}
               placeholder='Kullanıcı adı'
+              autoCapitalize='none'
               onChangeText={setUsername} />
             {
               clicked ? UsernameIcon(username) : null
@@ -133,7 +134,7 @@ export default function SignupScreen({ navigation }) {
               style={styles.textInput}
               placeholder='Parola'
               secureTextEntry
-              onChangeText={setPassword} />
+              onChangeText={(value)=>console.log(value)} />
             {
               clicked ? PasswordIcon(password) : null
             }

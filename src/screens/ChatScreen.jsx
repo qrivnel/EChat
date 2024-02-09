@@ -104,15 +104,19 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         renderItem={({ item }) => (
                             <Message messageIndex={item.id} user={item.user} text={item.text} time={new Date(item.createdAt.seconds * 1000)} bgcolor={
                                 item.user.id == currentUser.id
-                                                    ? 'lightgreen'
-                                                    : 'lightgray'   
+                                    ? 'lightgreen'
+                                    : 'lightgray'
                             } />
                         )}
                         keyExtractor={item => item.id}
                         getItemLayout={(data, index) => (
-                            { length: 76, offset: 76 * index, index }
+                            { length: 70, offset: 70 * index, index }
                         )}
-                        initialScrollIndex={messages.length - 1}
+                        initialScrollIndex={
+                            messages.length > 9
+                                ? messages.length - 1
+                                : 0
+                        }
                     />
                     : <View style={{ position: 'relative', flex: 8 }}><Text> MESAJ YOK</Text></View>
             }
