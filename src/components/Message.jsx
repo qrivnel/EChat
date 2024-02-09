@@ -8,7 +8,7 @@ export default function Message({ messageIndex, user, text, time, bgcolor }) {
             <Text style={styles.usernameText}>{user.username}:</Text>
             <Text style={styles.messageText}> {text}</Text>
             <Text style={{ fontSize: 15, color: 'gray', position: 'absolute', bottom: 0, right: 5 }}>{
-                `${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}:${time.getSeconds() < 10 ? '0' + time.getSeconds() : time.getSeconds()}`
+                `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
             }</Text>
         </TouchableOpacity>
 
