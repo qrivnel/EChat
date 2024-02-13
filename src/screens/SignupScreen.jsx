@@ -26,36 +26,43 @@ export default function SignupScreen({ navigation }) {
   }
 
   useEffect(() => {
-    firestore().collection('users')
-      .where('username', '==', username).get()
-      .then(res => {
-        res.docs.length != 0
-          ? setUsernameCheck(true)
-          : setUsernameCheck(false)
-      })
+    try {
+      firestore().collection('users')
+        .where('username', '==', username).get()
+        .then(res => {
+          res.docs.length != 0
+            ? setUsernameCheck(true)
+            : setUsernameCheck(false)
+        })
+    } catch (error) {
+      console.log(error);
+    }
   }, [username])
 
   const createUser = () => {
-    setClicked(true)
-    if (checkPasswords && name != '' && surname != '' && !usernameCheck && username != '' && password != '' && passwordAgain != '') {
-      setIsLoading(true)
-      firestore().collection('users').add({
-        about: '',
-        age: 0,
-        eposta: '@gmail.com',
-        lastActivity: '',
-        name: name,
-        password: password,
-        status: false,
-        surname: surname,
-        telno: '',
-        username: username
-      }).then(res => {
-        setIsLoading(false)
-        navigation.navigate('login')
-      })
+    try {
+      setClicked(true)
+      if (checkPasswords && name != '' && surname != '' && !usernameCheck && username != '' && password != '' && passwordAgain != '') {
+        setIsLoading(true)
+        firestore().collection('users').add({
+          about: '',
+          age: 0,
+          eposta: '@gmail.com',
+          lastActivity: '',
+          name: name,
+          password: password,
+          status: false,
+          surname: surname,
+          telno: '',
+          username: username
+        }).then(res => {
+          setIsLoading(false)
+          navigation.navigate('login')
+        })
+      }
+    } catch (error) {
+      console.log(error);
     }
-
   }
 
   const navigateToLogin = () => {
@@ -134,7 +141,7 @@ export default function SignupScreen({ navigation }) {
               style={styles.textInput}
               placeholder='Parola'
               secureTextEntry
-              onChangeText={(value)=>console.log(value)} />
+              onChangeText={(value) => console.log(value)} />
             {
               clicked ? PasswordIcon(password) : null
             }

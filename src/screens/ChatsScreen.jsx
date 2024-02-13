@@ -14,10 +14,15 @@ export default function ChatsScreen({ currentUser, navigation }) {
   const [username, setUsername] = useState()
 
   useEffect(() => {
-    if (currentUser != undefined)
-      firestore().collection('chats')
-        .where('users', 'array-contains', currentUser.id)
-        .onSnapshot(data => setChats(data.docs))
+    try {
+      if (currentUser != undefined)
+        firestore().collection('chats')
+          .where('users', 'array-contains', currentUser.id)
+          .onSnapshot(data => setChats(data.docs))
+
+    } catch (error) {
+      console.log(error);
+    }
   }, [])
 
   const addChat = () => {
@@ -27,53 +32,61 @@ export default function ChatsScreen({ currentUser, navigation }) {
   }
 
   const createChatForIos = async (value) => {
-    if (value != undefined && value != '') {
-      const getUser = await firestore().collection('users')
-        .where('username', '==', value).get()
-      if (getUser.docs.length != 0) {
-        if (getUser.docs[0].id != currentUser.id) {
-          let isExist = false
-          chats.map((chat) => {
-            isExist == false ? isExist = chat.data().users.includes(getUser.docs[0].id) : null
-          })
-          !isExist ? firestore().collection('chats').add({
-            messages: [],
-            users: [
-              currentUser.id,
-              getUser.docs[0].id
-            ]
-          }) : Alert.alert('Sohbet mevcut')
-        } else {
-          Alert.alert('Kendinizle sohbet oluşturamazsınız.')
+    try {
+      if (value != undefined && value != '') {
+        const getUser = await firestore().collection('users')
+          .where('username', '==', value).get()
+        if (getUser.docs.length != 0) {
+          if (getUser.docs[0].id != currentUser.id) {
+            let isExist = false
+            chats.map((chat) => {
+              isExist == false ? isExist = chat.data().users.includes(getUser.docs[0].id) : null
+            })
+            !isExist ? firestore().collection('chats').add({
+              messages: [],
+              users: [
+                currentUser.id,
+                getUser.docs[0].id
+              ]
+            }) : Alert.alert('Sohbet mevcut')
+          } else {
+            Alert.alert('Kendinizle sohbet oluşturamazsınız.')
+          }
         }
       }
+    } catch (error) {
+      console.log(error);
     }
   }
 
   const createChat = async () => {
-    setModalVisible(false)
-    if (username != undefined && username != '') {
-      const getUser = await firestore().collection('users')
-        .where('username', '==', username).get()
-      if (getUser.docs.length != 0) {
-        if (getUser.docs[0].id != currentUser.id) {
-          let isExist = false
-          chats.map((chat) => {
-            isExist == false ? isExist = chat.data().users.includes(getUser.docs[0].id) : null
-          })
-          !isExist ? firestore().collection('chats').add({
-            messages: [],
-            users: [
-              currentUser.id,
-              getUser.docs[0].id
-            ]
-          }) : Alert.alert('Sohbet mevcut')
-        } else {
-          Alert.alert('Kendinizle sohbet oluşturamazsınız.')
+    try {
+      setModalVisible(false)
+      if (username != undefined && username != '') {
+        const getUser = await firestore().collection('users')
+          .where('username', '==', username).get()
+        if (getUser.docs.length != 0) {
+          if (getUser.docs[0].id != currentUser.id) {
+            let isExist = false
+            chats.map((chat) => {
+              isExist == false ? isExist = chat.data().users.includes(getUser.docs[0].id) : null
+            })
+            !isExist ? firestore().collection('chats').add({
+              messages: [],
+              users: [
+                currentUser.id,
+                getUser.docs[0].id
+              ]
+            }) : Alert.alert('Sohbet mevcut')
+          } else {
+            Alert.alert('Kendinizle sohbet oluşturamazsınız.')
+          }
         }
       }
+      setUsername()
+    } catch (error) {
+      console.log(error);
     }
-    setUsername()
   }
   return currentUser != undefined
     ? <SafeAreaView style={styles.mainView}>

@@ -39,18 +39,26 @@ export default function ChatComponent({ userId, onPress, chatId }) {
   }
 
   useEffect(() => {
-    firestore().collection('chats').doc(chatId)
-      .onSnapshot(data => {
-        if (data.data().messages.length != 0) {
-          prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
-          setSubtitle(data.data().messages[data.data().messages.length - 1].text)
-        }
-      })
+    try {
+      firestore().collection('chats').doc(chatId)
+        .onSnapshot(data => {
+          if (data.data().messages.length != 0) {
+            prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
+            setSubtitle(data.data().messages[data.data().messages.length - 1].text)
+          }
+        })
+    } catch (error) {
+      console.log(error);
+    }
   }, [])
 
   useEffect(() => {
-    firestore().collection('users').doc(userId).get()
+    try {
+      firestore().collection('users').doc(userId).get()
       .then(res => setUser(res.data()))
+    } catch (error) {
+      console.log(error);
+    }
   }, [])
 
   return user != undefined

@@ -24,11 +24,15 @@ export default function UserStacks({ setIsAuth }) {
     }, [])
 
     const getCurrentUser = () => {
-        AsyncStorage.getItem('currentuser')
-            .then(res => {
-                firestore().collection('users').doc(res).get()
-                    .then(res => setCurrentUser(res))
-            })
+        try {
+            AsyncStorage.getItem('currentuser')
+                .then(res => {
+                    firestore().collection('users').doc(res).get()
+                        .then(res => setCurrentUser(res))
+                })
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const Home = () => (

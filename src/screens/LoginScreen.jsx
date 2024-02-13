@@ -13,16 +13,20 @@ export default function LoginScreen({ setIsAuth, navigation }) {
     const [password, setPassword] = useState(null)
 
     const handleLogin = () => {
-        if (username != null && password != null) {
-            firestore().collection('users').get()
-                .then(res => {
-                    res.docs.map(val => {
-                        if (username == val.data().username && password == val.data().password) {
-                            AsyncStorage.setItem('currentuser', val.id)
-                            setIsAuth(true)
-                        }
+        try {
+            if (username != null && password != null) {
+                firestore().collection('users').get()
+                    .then(res => {
+                        res.docs.map(val => {
+                            if (username == val.data().username && password == val.data().password) {
+                                AsyncStorage.setItem('currentuser', val.id)
+                                setIsAuth(true)
+                            }
+                        })
                     })
-                })
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -32,8 +36,8 @@ export default function LoginScreen({ setIsAuth, navigation }) {
 
     return (
         <SafeAreaView style={styles.mainView}>
-            <Image style={{ width: 330, height: 250, resizeMode: 'stretch', alignSelf: 'center'}} source={EChatLogo} />
-            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <Image style={{ width: 330, height: 250, resizeMode: 'stretch', alignSelf: 'center' }} source={EChatLogo} />
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <View style={styles.textInputsView}>
                     <TextInput
                         id='inputusername'

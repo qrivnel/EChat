@@ -19,13 +19,22 @@ export default function ChatScreen({ route, navigation, currentUser }) {
     const [message, setMessage] = useState()
 
     useEffect(() => {
-        firestore().collection('users').doc(route.params.userId).get()
+        try {
+      firestore().collection('users').doc(route.params.userId).get()
             .then(res => setUser(res))
+        } catch (error) {
+          console.log(error);
+        }
     }, [])
 
     useEffect(() => {
+        try {
         firestore().collection('chats').doc(route.params.chatId)
             .onSnapshot(res => setMessages(res.data().messages))
+      
+        } catch (error) {
+          console.log(error);
+        }
     }, [])
 
     useEffect(() => {
@@ -39,25 +48,29 @@ export default function ChatScreen({ route, navigation, currentUser }) {
 
 
     const sendMessage = async () => {
-        if (message != undefined && message != '') {
-            const previousMessageIndex = await firestore().collection('chats').doc(route.params.chatId).get()
-                .then(res => res.data().messages.length != 0
-                    ? res.data().messages[res.data().messages.length - 1].id
-                    : -1
-                )
-            firestore().collection('chats').doc(route.params.chatId).update({
-                messages: firestore.FieldValue.arrayUnion({
-                    id: previousMessageIndex + 1,
-                    user: {
-                        id: currentUser.id,
-                        username: currentUser.data().username
-                    },
-                    text: message,
-                    createdAt: new Date(),
+        try {
+            if (message != undefined && message != '') {
+                const previousMessageIndex = await firestore().collection('chats').doc(route.params.chatId).get()
+                    .then(res => res.data().messages.length != 0
+                        ? res.data().messages[res.data().messages.length - 1].id
+                        : -1
+                    )
+                firestore().collection('chats').doc(route.params.chatId).update({
+                    messages: firestore.FieldValue.arrayUnion({
+                        id: previousMessageIndex + 1,
+                        user: {
+                            id: currentUser.id,
+                            username: currentUser.data().username
+                        },
+                        text: message,
+                        createdAt: new Date(),
+                    })
                 })
-            })
+            }
+            setMessage('')
+        } catch (error) {
+            console.log(error);
         }
-        setMessage('')
     }
 
     const changeInputHeight = (height) => {
