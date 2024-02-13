@@ -11,7 +11,6 @@ export default function Message({ messageIndex, user, text, time, bgcolor }) {
                 `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
             }</Text>
         </TouchableOpacity>
-
     )
 }
 

@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function ProfilePicture({ userData, width, height }) {
     return (
-        <View style={[styles.imageView, {width: width, height: height}]}>
+        <View style={[styles.imageView, {width: width, height: height, backgroundColor: userData.bgColor}]}>
             <Text style={[styles.imageText, {fontSize: width/2}]}>
                 {userData.name.at(0)}{userData.surname.at(0)}
             </Text>
@@ -13,7 +13,6 @@ export default function ProfilePicture({ userData, width, height }) {
 
 const styles = StyleSheet.create({
     imageView: {
-        backgroundColor: 'lightblue',
         borderRadius: 9999999999,
         margin: 5,
         alignItems: 'center',

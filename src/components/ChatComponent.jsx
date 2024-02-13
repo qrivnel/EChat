@@ -101,15 +101,6 @@ const styles = StyleSheet.create({
     height: 80,
     marginTop: 5
   },
-  imageView: {
-    flex: 3,
-    height: '100%',
-    backgroundColor: 'lightblue',
-    borderRadius: 1000,
-    margin: 5,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
   imageText: {
     color: 'white',
     fontSize: 50,
