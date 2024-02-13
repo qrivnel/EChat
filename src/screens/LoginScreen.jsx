@@ -1,10 +1,12 @@
-import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //FIREBASE
 import firestore from '@react-native-firebase/firestore'
+//SVGS
+import EChatLogo from '../assets/EChatLogo.png'
 
 export default function LoginScreen({ setIsAuth, navigation }) {
     const [username, setUsername] = useState(null)
@@ -15,7 +17,7 @@ export default function LoginScreen({ setIsAuth, navigation }) {
             firestore().collection('users').get()
                 .then(res => {
                     res.docs.map(val => {
-                        if (username == val.data().username && password == val.data().password){
+                        if (username == val.data().username && password == val.data().password) {
                             AsyncStorage.setItem('currentuser', val.id)
                             setIsAuth(true)
                         }
@@ -30,36 +32,39 @@ export default function LoginScreen({ setIsAuth, navigation }) {
 
     return (
         <SafeAreaView style={styles.mainView}>
-            <View style={styles.textInputsView}>
-                <TextInput
-                    id='inputusername'
-                    placeholder='Kullanıcı adı'
-                    placeholderTextColor={'gray'}
-                    style={styles.textInputs}
-                    autoCapitalize='none'
-                    onChangeText={setUsername} />
-                <TextInput
-                    id='inputpassword'
-                    placeholder='Şifre'
-                    placeholderTextColor={'gray'}
-                    secureTextEntry={true}
-                    style={styles.textInputs}
-                    autoCapitalize='none'
-                    onChangeText={setPassword} />
-            </View>
-            <View style={styles.buttonView}>
-                <TouchableOpacity
-                    id='loginbutton'
-                    style={[styles.button, { backgroundColor: '#478eff' }]}
-                    onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Giriş yap</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    id='signupbutton'
-                    style={[styles.button, { backgroundColor: '#969696' }]}
-                    onPress={toSignup} >
-                    <Text style={styles.buttonText}>Kayıt ol</Text>
-                </TouchableOpacity>
+            <Image style={{ width: 330, height: 250, resizeMode: 'stretch', alignSelf: 'center'}} source={EChatLogo} />
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <View style={styles.textInputsView}>
+                    <TextInput
+                        id='inputusername'
+                        placeholder='Kullanıcı adı'
+                        placeholderTextColor={'gray'}
+                        style={styles.textInputs}
+                        autoCapitalize='none'
+                        onChangeText={setUsername} />
+                    <TextInput
+                        id='inputpassword'
+                        placeholder='Şifre'
+                        placeholderTextColor={'gray'}
+                        secureTextEntry={true}
+                        style={styles.textInputs}
+                        autoCapitalize='none'
+                        onChangeText={setPassword} />
+                </View>
+                <View style={styles.buttonView}>
+                    <TouchableOpacity
+                        id='loginbutton'
+                        style={[styles.button, { backgroundColor: '#478eff' }]}
+                        onPress={handleLogin}>
+                        <Text style={styles.buttonText}>Giriş yap</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        id='signupbutton'
+                        style={[styles.button, { backgroundColor: '#969696' }]}
+                        onPress={toSignup} >
+                        <Text style={styles.buttonText}>Kayıt ol</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </SafeAreaView>
     )
@@ -86,8 +91,7 @@ const styles = StyleSheet.create({
     },
     mainView: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: 'white'
     },
     textInputsView: {
         width: 250,
