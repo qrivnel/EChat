@@ -19,7 +19,6 @@ export default function ChatsScreen({ currentUser, navigation }) {
         firestore().collection('chats')
           .where('users', 'array-contains', currentUser.id)
           .onSnapshot(data => setChats(data.docs))
-
     } catch (error) {
       console.log(error);
     }

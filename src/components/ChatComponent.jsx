@@ -54,8 +54,8 @@ export default function ChatComponent({ userId, onPress, chatId }) {
 
   useEffect(() => {
     try {
-      firestore().collection('users').doc(userId).get()
-      .then(res => setUser(res.data()))
+      firestore().collection('users').doc(userId)
+        .onSnapshot(res => setUser(res.data()))
     } catch (error) {
       console.log(error);
     }

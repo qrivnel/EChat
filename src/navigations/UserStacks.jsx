@@ -27,8 +27,8 @@ export default function UserStacks({ setIsAuth }) {
         try {
             AsyncStorage.getItem('currentuser')
                 .then(res => {
-                    firestore().collection('users').doc(res).get()
-                        .then(res => setCurrentUser(res))
+                    firestore().collection('users').doc(res)
+                        .onSnapshot(res => setCurrentUser(res))
                 })
         } catch (error) {
             console.log(error);

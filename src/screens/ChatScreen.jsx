@@ -65,7 +65,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         text: message,
                         createdAt: new Date(),
                     })
-                })
+                }).then(res => console.log(res))
             }
             setMessage('')
         } catch (error) {
