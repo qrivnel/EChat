@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +24,8 @@ export default function LoginScreen({ setIsAuth, navigation }) {
                             }
                         })
                     })
-            }
+            } else
+                Alert.alert('Kullanıcı adı veya şifre yanlış')
         } catch (error) {
             console.log(error);
         }

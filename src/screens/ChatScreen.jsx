@@ -39,10 +39,16 @@ export default function ChatScreen({ route, navigation, currentUser }) {
         }
         return () => {
             firestore().collection('chats').doc(route.params.chatId).get()
-            .then(res=>{
-                if(res.data().messages.length == 0)
-                    firestore().collection('chats').doc(route.params.chatId).delete()
-            })
+                .then(res => {
+                    if (res.data().messages.length == 0) {
+                        try {
+                            firestore().collection('chats').doc(route.params.chatId).delete()
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+
+                })
         }
     }, [])
 

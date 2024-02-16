@@ -29,7 +29,7 @@ export default function ChatsScreen({ currentUser, navigation }) {
                     return dateB - dateA
                   }
                 })
-              const filteredChats = sortedChats.filter(chat=>chat.data().messages.length != 0);
+              const filteredChats = sortedChats.filter(chat => chat.data().messages.length != 0);
               setChats(filteredChats)
             }
           })
@@ -67,12 +67,11 @@ export default function ChatsScreen({ currentUser, navigation }) {
                     firestore().collection('chats').doc(res1.id).get()
                       .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
                   }) : Alert.alert('Sohbet mevcut')
-            })
-
-          } else {
+              })
+          } else
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')
-          }
-        }
+        } else
+          Alert.alert('Kullanıcı mevcut değil')
       }
     } catch (error) {
       console.log(error);
@@ -87,24 +86,28 @@ export default function ChatsScreen({ currentUser, navigation }) {
           .where('username', '==', username).get()
         if (getUser.docs.length != 0) {
           if (getUser.docs[0].id != currentUser.id) {
-            let isExist = false
-            chats.map((chat) => {
-              isExist == false ? isExist = chat.data().users.includes(getUser.docs[0].id) : null
-            })
-            !isExist ? firestore().collection('chats').add({
-              messages: [],
-              users: [
-                currentUser.id,
-                getUser.docs[0].id
-              ]
-            }).then(res1 => {
-              firestore().collection('chats').doc(res1.id).get()
-                .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
-            }) : Alert.alert('Sohbet mevcut')
+            firestore().collection('chats')
+              .where('users', 'array-contains', currentUser.id)
+              .get()
+              .then(res => {
+                const filteredRes = res.docs.filter(doc => doc.data().users.includes(getUser.docs[0].id))
+                filteredRes.length == 0
+                  ? firestore().collection('chats').add({
+                    messages: [],
+                    users: [
+                      currentUser.id,
+                      getUser.docs[0].id
+                    ]
+                  }).then(res1 => {
+                    firestore().collection('chats').doc(res1.id).get()
+                      .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
+                  }) : Alert.alert('Sohbet mevcut')
+              })
           } else {
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')
           }
-        }
+        } else
+          Alert.alert('Kullanıcı mevcut değil')
       }
       setUsername()
     } catch (error) {

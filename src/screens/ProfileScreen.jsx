@@ -57,7 +57,7 @@ export default function ProfileScreen({ currentUser, navigation }) {
           id='contactview'
           style={{ alignItems: 'center' }}>
           <View
-            style={{ shadowColor: currentUser.data().bgColor, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 100, elevation: 100, borderRadius: 100 }} >
+            style={{ shadowColor: currentUser.data().bgColor, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 50, elevation: 100, borderRadius: 100 }} >
             <ProfilePicture userData={currentUser.data()} width={150} height={150} />
           </View>
           <Text style={styles.usernameText}> {currentUser.data().username} </Text>
