@@ -20,19 +20,29 @@ export default function ChatScreen({ route, navigation, currentUser }) {
 
     useEffect(() => {
         try {
-      firestore().collection('users').doc(route.params.userId).get()
-            .then(res => setUser(res))
+            firestore().collection('users').doc(route.params.userId).get()
+                .then(res => setUser(res))
         } catch (error) {
-          console.log(error);
+            console.log(error);
         }
     }, [])
 
     useEffect(() => {
         try {
-        firestore().collection('chats').doc(route.params.chatId)
-            .onSnapshot(res => setMessages(res.data().messages))
+            firestore().collection('chats').doc(route.params.chatId)
+                .onSnapshot(res => {
+                    if (res.data() != undefined)
+                        setMessages(res.data().messages)
+                })
         } catch (error) {
-          console.log(error);
+            console.log(error);
+        }
+        return () => {
+            firestore().collection('chats').doc(route.params.chatId).get()
+            .then(res=>{
+                if(res.data().messages.length == 0)
+                    firestore().collection('chats').doc(route.params.chatId).delete()
+            })
         }
     }, [])
 
@@ -64,7 +74,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         text: message,
                         createdAt: new Date(),
                     })
-                }).then(res => console.log(res))
+                })
             }
             setMessage('')
         } catch (error) {
@@ -130,7 +140,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                                 : 0
                         }
                     />
-                    : <View style={styles.noMessageView}><Text style={{color: 'gray', fontSize: 30,}}> Bir şeyler yaz..</Text></View>
+                    : <View style={styles.noMessageView}><Text style={styles.infoMessage}>Bir şeyler yaz..</Text></View>
             }
 
             <KeyboardAvoidingView
@@ -160,12 +170,16 @@ export default function ChatScreen({ route, navigation, currentUser }) {
 }
 
 const styles = StyleSheet.create({
-  noMessageView: {
-    position: 'relative',
-    flex: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    infoMessage: {
+        color: 'gray',
+        fontSize: 30,
+    },
+    noMessageView: {
+        position: 'relative',
+        flex: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     textInput: {
         width: 300,
         borderWidth: 2,

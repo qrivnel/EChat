@@ -42,7 +42,7 @@ export default function ChatComponent({ userId, onPress, chatId }) {
     try {
       firestore().collection('chats').doc(chatId)
         .onSnapshot(data => {
-          if (data.data().messages.length != 0) {
+          if (data.data() != undefined && data.data().messages.length != 0) {
             prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
             setSubtitle(data.data().messages[data.data().messages.length - 1].text)
           }

@@ -19,30 +19,24 @@ export default function ChatsScreen({ currentUser, navigation }) {
         firestore().collection('chats')
           .where('users', 'array-contains', currentUser.id)
           .onSnapshot(snapshot => {
-            // const sortedChats = snapshot.docs
-            // .map(doc => doc)
-            // .sort((a, b) => {
-            //   return  new Date(b.data().messages[b.data().messages.length - 1].createdAt.seconds * 1000) - new Date(a.data().messages[a.data().messages.length - 1].createdAt.seconds * 1000)
-            // })
-            const xx = [new Date(31536000 * 1000).getFullYear(), new Date(71536000 * 1000).getFullYear(), new Date(101536000 * 1000).getFullYear(), new Date(141536000 * 1000).getFullYear(), new Date(161536000 * 1000).getFullYear()]
-            sortedxx = xx.sort((a, b) => {
-              return b - a
-            })
-            //console.log(sortedxx);
-
-            const sortedChats = snapshot.docs
-              .map(doc => doc)
-              .sort((a, b) => {
-                const dateA = new Date(a.data().messages[a.data().messages.length - 1].createdAt.seconds * 1000)
-                const dateB = new Date(b.data().messages[b.data().messages.length - 1].createdAt.seconds * 1000)
-                return dateB - dateA
-              })
-            setChats(sortedChats)
+            if (snapshot != null) {
+              const sortedChats = snapshot.docs
+                .map(doc => doc)
+                .sort((a, b) => {
+                  if (a.data().messages.length != 0 && b.data().messages.length != 0) {
+                    const dateA = new Date(a.data().messages[a.data().messages.length - 1].createdAt.seconds * 1000)
+                    const dateB = new Date(b.data().messages[b.data().messages.length - 1].createdAt.seconds * 1000)
+                    return dateB - dateA
+                  }
+                })
+              const filteredChats = sortedChats.filter(chat=>chat.data().messages.length != 0);
+              setChats(filteredChats)
+            }
           })
     } catch (error) {
       console.log(error);
     }
-  }, [])
+  }, [currentUser])
 
   const addChat = () => {
     Platform.OS == 'ios'
@@ -52,26 +46,29 @@ export default function ChatsScreen({ currentUser, navigation }) {
 
   const createChatForIos = async (value) => {
     try {
-      if (value != undefined && value != '') {
+      if (value != undefined && value != '' && value != null) {
         const getUser = await firestore().collection('users')
           .where('username', '==', value).get()
         if (getUser.docs.length != 0) {
           if (getUser.docs[0].id != currentUser.id) {
-            let isExist = false
-            chats.map((chat) => {
-              isExist == false ? isExist = chat.data().users.includes(getUser.docs[0].id) : null
+            firestore().collection('chats')
+              .where('users', 'array-contains', currentUser.id)
+              .get()
+              .then(res => {
+                const filteredRes = res.docs.filter(doc => doc.data().users.includes(getUser.docs[0].id))
+                filteredRes.length == 0
+                  ? firestore().collection('chats').add({
+                    messages: [],
+                    users: [
+                      currentUser.id,
+                      getUser.docs[0].id
+                    ]
+                  }).then(res1 => {
+                    firestore().collection('chats').doc(res1.id).get()
+                      .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
+                  }) : Alert.alert('Sohbet mevcut')
             })
-            !isExist ? firestore().collection('chats').add({
-              messages: [],
-              users: [
-                currentUser.id,
-                getUser.docs[0].id
-              ]
-            }).then(res1 => {
-              firestore().collection('chats').doc(res1.id).get()
-                .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
-              //
-            }) : Alert.alert('Sohbet mevcut')
+
           } else {
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')
           }
@@ -103,7 +100,6 @@ export default function ChatsScreen({ currentUser, navigation }) {
             }).then(res1 => {
               firestore().collection('chats').doc(res1.id).get()
                 .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
-              //
             }) : Alert.alert('Sohbet mevcut')
           } else {
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')
@@ -132,7 +128,7 @@ export default function ChatsScreen({ currentUser, navigation }) {
               </View>
             )
             }
-          /> : <Text> Yükleniyor... </Text>
+          /> : <Text style={{ color: 'gray', fontSize: 30, }}>Bir sohbet başlat</Text>
       }
       <TouchableOpacity
         id='addchat'
