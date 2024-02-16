@@ -18,7 +18,27 @@ export default function ChatsScreen({ currentUser, navigation }) {
       if (currentUser != undefined)
         firestore().collection('chats')
           .where('users', 'array-contains', currentUser.id)
-          .onSnapshot(data => setChats(data.docs))
+          .onSnapshot(snapshot => {
+            // const sortedChats = snapshot.docs
+            // .map(doc => doc)
+            // .sort((a, b) => {
+            //   return  new Date(b.data().messages[b.data().messages.length - 1].createdAt.seconds * 1000) - new Date(a.data().messages[a.data().messages.length - 1].createdAt.seconds * 1000)
+            // })
+            const xx = [new Date(31536000 * 1000).getFullYear(), new Date(71536000 * 1000).getFullYear(), new Date(101536000 * 1000).getFullYear(), new Date(141536000 * 1000).getFullYear(), new Date(161536000 * 1000).getFullYear()]
+            sortedxx = xx.sort((a, b) => {
+              return b - a
+            })
+            //console.log(sortedxx);
+
+            const sortedChats = snapshot.docs
+              .map(doc => doc)
+              .sort((a, b) => {
+                const dateA = new Date(a.data().messages[a.data().messages.length - 1].createdAt.seconds * 1000)
+                const dateB = new Date(b.data().messages[b.data().messages.length - 1].createdAt.seconds * 1000)
+                return dateB - dateA
+              })
+            setChats(sortedChats)
+          })
     } catch (error) {
       console.log(error);
     }
@@ -47,6 +67,10 @@ export default function ChatsScreen({ currentUser, navigation }) {
                 currentUser.id,
                 getUser.docs[0].id
               ]
+            }).then(res1 => {
+              firestore().collection('chats').doc(res1.id).get()
+                .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
+              //
             }) : Alert.alert('Sohbet mevcut')
           } else {
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')
@@ -76,6 +100,10 @@ export default function ChatsScreen({ currentUser, navigation }) {
                 currentUser.id,
                 getUser.docs[0].id
               ]
+            }).then(res1 => {
+              firestore().collection('chats').doc(res1.id).get()
+                .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
+              //
             }) : Alert.alert('Sohbet mevcut')
           } else {
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')

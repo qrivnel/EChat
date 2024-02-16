@@ -55,10 +55,7 @@ export default function SignupScreen({ navigation }) {
           surname: surname,
           telno: '',
           username: username
-        }).then(res => {
-          setIsLoading(false)
-          navigation.navigate('login')
-        })
+        }).then(() => navigation.navigate('login'))
       }
     } catch (error) {
       console.log(error);
@@ -92,7 +89,8 @@ export default function SignupScreen({ navigation }) {
   }
   return (
     <SafeAreaView
-      style={styles.mainView}>
+      style={styles.mainView}
+    >
       <View style={styles.textInputView}>
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -141,7 +139,7 @@ export default function SignupScreen({ navigation }) {
               style={styles.textInput}
               placeholder='Parola'
               secureTextEntry
-              onChangeText={(value) => console.log(value)} />
+              onChangeText={setPassword} />
             {
               clicked ? PasswordIcon(password) : null
             }
@@ -169,14 +167,15 @@ export default function SignupScreen({ navigation }) {
         <TouchableOpacity
           style={[styles.button, { backgroundColor: 'green' }]}
           onPress={createUser}
-          disabled={false}>
+          disabled={isLoading}>
           <Text
             style={styles.buttonText}>Kayıt ol</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: 'lightgray' }]}
-          onPress={navigateToLogin}>
+          onPress={navigateToLogin}
+          disabled={isLoading}>
           <Text
             style={styles.buttonText} >Geri dön</Text>
         </TouchableOpacity>
@@ -209,7 +208,7 @@ const styles = StyleSheet.create({
   },
   textInputView: {
     width: '100%',
-    height: 400,
+    height: 350,
     marginLeft: 20,
     justifyContent: 'space-between',
   },

@@ -31,7 +31,6 @@ export default function ChatScreen({ route, navigation, currentUser }) {
         try {
         firestore().collection('chats').doc(route.params.chatId)
             .onSnapshot(res => setMessages(res.data().messages))
-      
         } catch (error) {
           console.log(error);
         }
@@ -131,7 +130,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                                 : 0
                         }
                     />
-                    : <View style={{ position: 'relative', flex: 8 }}><Text> MESAJ YOK</Text></View>
+                    : <View style={styles.noMessageView}><Text style={{color: 'gray', fontSize: 30,}}> Bir şeyler yaz..</Text></View>
             }
 
             <KeyboardAvoidingView
@@ -161,6 +160,12 @@ export default function ChatScreen({ route, navigation, currentUser }) {
 }
 
 const styles = StyleSheet.create({
+  noMessageView: {
+    position: 'relative',
+    flex: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
     textInput: {
         width: 300,
         borderWidth: 2,
