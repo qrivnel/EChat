@@ -114,8 +114,11 @@ export default function ChatsScreen({ currentUser, navigation }) {
       console.log(error);
     }
   }
+
+
   return currentUser != undefined
-    ? <SafeAreaView style={styles.mainView}>
+    ? <SafeAreaView
+      style={styles.mainView}>
       {
         chats != undefined
           ? <FlatList
@@ -126,7 +129,7 @@ export default function ChatsScreen({ currentUser, navigation }) {
                 <ChatComponent
                   userId={item.data().users.find(user => user != currentUser.id)}
                   chatId={item.id}
-                  onPress={() => navigation.navigate('chatdetail', { chatId: item.id, userId: item.data().users.find(user => user != currentUser.id) })} />
+                  onPress={() => navigation.navigate('chatdetail', { chatId: item.id, userId: item.data().users.find(user => user != currentUser.id,) })} />
                 <View style={styles.serprator}></View>
               </View>
             )

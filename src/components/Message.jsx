@@ -5,7 +5,6 @@ export default function Message({ messageIndex, user, text, time, bgcolor }) {
     return (
         <TouchableOpacity
             style={[styles.mainView, { backgroundColor: bgcolor }]}>
-            <Text style={styles.usernameText}>{user.username}:</Text>
             <Text style={styles.messageText}> {text}</Text>
             <Text style={{ fontSize: 15, color: 'gray', position: 'absolute', bottom: 0, right: 5 }}>{
                 `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
@@ -27,13 +26,12 @@ const styles = StyleSheet.create({
         paddingVertical: Platform.OS == 'ios' ? 8 : 0,
     },
     mainView: {
-        height: 60,
+        flexWrap: 'wrap',
         flexDirection: 'row',
-        alignItems: 'center',
         borderWidth: 1,
         borderRadius: 10,
-        marginBottom: 10,
+        marginVertical: 5,
         marginHorizontal: 5,
-        padding: 10
+        paddingHorizontal: 10
     }
 })

@@ -58,6 +58,7 @@ export default function UserStacks({ setIsAuth }) {
             </Tab.Screen>
         </Tab.Navigator>
     )
+
     return (
         <Stack.Navigator
             initialRouteName='home'

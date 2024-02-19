@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform, Modal, ScrollView } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 
 //COMPONENTS
@@ -11,7 +11,10 @@ import LeftArrow from '../assets/left-arrow.svg'
 import SendIcon from '../assets/SendIcon.svg'
 
 export default function ChatScreen({ route, navigation, currentUser }) {
-    const flatListRef = useRef(null);
+    const flatListRef = useRef();
+    const textInputRef = useRef();
+
+    const [sendMessageButtonDisabled, setSendMessageButtonDisabled] = useState(false)
 
     const [user, setUser] = useState()
     const [messages, setMessages] = useState([])
@@ -38,50 +41,49 @@ export default function ChatScreen({ route, navigation, currentUser }) {
             console.log(error);
         }
         return () => {
-            firestore().collection('chats').doc(route.params.chatId).get()
-                .then(res => {
-                    if (res.data().messages.length == 0) {
-                        try {
-                            firestore().collection('chats').doc(route.params.chatId).delete()
-                        } catch (error) {
-                            console.log(error);
+            try {
+                firestore().collection('chats').doc(route.params.chatId).get()
+                    .then(res => {
+                        if (res.data().messages.length == 0) {
+                            try {
+                                firestore().collection('chats').doc(route.params.chatId).delete()
+                            } catch (error) {
+                                console.log(error);
+                            }
                         }
-                    }
-
-                })
+                    })
+            } catch (error) {
+                console.log(error);
+            }
         }
     }, [])
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, user]);
-
     const scrollToBottom = () => {
-        if (flatListRef.current != null)
+        if (flatListRef.current != undefined)
             flatListRef.current.scrollToEnd({ animated: true });
     };
 
 
     const sendMessage = async () => {
         try {
-            if (message != undefined && message != '') {
-                const previousMessageIndex = await firestore().collection('chats').doc(route.params.chatId).get()
-                    .then(res => res.data().messages.length != 0
-                        ? res.data().messages[res.data().messages.length - 1].id
-                        : -1
-                    )
-                firestore().collection('chats').doc(route.params.chatId).update({
-                    messages: firestore.FieldValue.arrayUnion({
-                        id: previousMessageIndex + 1,
-                        user: {
-                            id: currentUser.id,
-                            username: currentUser.data().username
-                        },
-                        text: message,
-                        createdAt: new Date(),
-                    })
+            const previousMessageIndex = await firestore().collection('chats').doc(route.params.chatId).get()
+                .then(res => res.data().messages.length != 0
+                    ? res.data().messages[res.data().messages.length - 1].id
+                    : -1
+                )
+            firestore().collection('chats').doc(route.params.chatId).update({
+                messages: firestore.FieldValue.arrayUnion({
+                    id: previousMessageIndex + 1,
+                    user: {
+                        id: currentUser.id,
+                        username: currentUser.data().username
+                    },
+                    text: message,
+                    createdAt: new Date(),
                 })
-            }
+            }).then(() => {
+                setSendMessageButtonDisabled(false)
+                scrollToBottom()
+            })
             setMessage('')
         } catch (error) {
             console.log(error);
@@ -102,6 +104,16 @@ export default function ChatScreen({ route, navigation, currentUser }) {
     const navigateToContactScreen = () => {
         navigation.navigate('contact')
     }
+
+    const [isLoaded, setIsLoaded] = useState(false)
+    useEffect(() => {
+        setTimeout(() => {
+            if (flatListRef.current != undefined)
+                flatListRef.current.scrollToEnd({ animated: false });
+            setIsLoaded(true)
+        }, 700)
+    }, [])
+
     return user != undefined
         ? <SafeAreaView style={{ flex: 1 }}>
             <View
@@ -128,27 +140,24 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                 messages.length != 0
                     ? <FlatList
                         ref={flatListRef}
-                        data={messages}
-                        renderItem={({ item }) => (
-                            <Message messageIndex={item.id} user={item.user} text={item.text} time={new Date(item.createdAt.seconds * 1000)} bgcolor={
-                                item.user.id == currentUser.id
-                                    ? 'lightgreen'
-                                    : 'lightgray'
-                            } />
-                        )}
+                        data={isLoaded ? messages : messages.slice().reverse()}
+                        initialNumToRender={1000}
+                        renderItem={({ item, index }) => {
+                            return <Message
+                                messageIndex={item.id}
+                                user={item.user} text={item.text}
+                                time={new Date(item.createdAt.seconds * 1000)}
+                                bgcolor={
+                                    item.user.id == currentUser.id
+                                        ? 'lightgreen'
+                                        : 'lightgray'
+                                } />
+                        }}
                         keyExtractor={item => item.id}
-                        getItemLayout={(data, index) => (
-                            { length: 70, offset: 70 * index, index }
-                        )}
-                        initialScrollIndex={
-                            messages.length > 9
-                                ? messages.length - 1
-                                : 0
-                        }
+                        inverted={!isLoaded}
                     />
                     : <View style={styles.noMessageView}><Text style={styles.infoMessage}>Bir şeyler yaz..</Text></View>
             }
-
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 <View
@@ -156,6 +165,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                     style={[styles.bottomView, { height: textInputHeight + 20 }]}>
                     <TextInput
                         id='textinput'
+                        ref={textInputRef}
                         multiline
                         style={[styles.textInput, { height: textInputHeight }]}
                         value={message}
@@ -163,15 +173,26 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                             changeInputHeight(event.nativeEvent.contentSize.height)
                         }}
                         onChangeText={setMessage}
+                        onFocus={() => {
+                            setTimeout(() => {
+                                if (flatListRef.current != undefined)
+                                    flatListRef.current.scrollToEnd({ animated: true });
+                            }, 300);
+                        }}
                     />
                     <TouchableOpacity
-                        onPress={sendMessage}>
+                        onPress={() => {
+                            if (message != undefined && message != '') {
+                                setSendMessageButtonDisabled(true)
+                                sendMessage()
+                            }
+                        }}
+                        disabled={sendMessageButtonDisabled}
+                    >
                         <SendIcon width={28} height={28} fill={'blue'} />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
-
-
         </SafeAreaView> : null
 }
 

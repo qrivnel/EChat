@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     textInputs: {
+        color: 'black',
         width: '100%',
         height: 50,
         borderWidth: 1.1,

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
 //COMPONENTS
@@ -65,7 +65,6 @@ export default function ChatComponent({ userId, onPress, chatId }) {
     ? <TouchableOpacity
       style={styles.mainView}
       onPress={onPress}>
-
       <ProfilePicture userData={user} width={80} height={80} />
 
       <View style={styles.contextView}>
