@@ -66,7 +66,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
     const [scrollMaxY, setScrollMaxY] = useState(-1)
     const [currentScrollY, setCurrentScrollY] = useState(-1)
     useEffect(() => {
-        if (currentScrollY > scrollMaxY - 500)
+        if (currentScrollY > scrollMaxY - 300)
             setTimeout(() => {
                 if (isLoaded)
                     scrollToBottom()

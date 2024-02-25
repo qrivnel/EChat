@@ -38,6 +38,7 @@ export default function ChatComponent({ userId, onPress, chatId }) {
       setTime(dateString)
   }
 
+  const [unreadMessages, setUnreadMessages] = useState([])
   useEffect(() => {
     try {
       firestore().collection('chats').doc(chatId)
@@ -46,6 +47,12 @@ export default function ChatComponent({ userId, onPress, chatId }) {
             prepareTime(data.data().messages[data.data().messages.length - 1].createdAt.seconds);
             setSubtitle(data.data().messages[data.data().messages.length - 1].text)
           }
+          const unreadMessages2 = []
+          data.data().messages.map(message => {
+            if (userId == message.user.id && message.status == 'delivered')
+              unreadMessages2.push(message)
+          })
+          setUnreadMessages(unreadMessages2)
         })
     } catch (error) {
       console.log(error);
@@ -68,12 +75,25 @@ export default function ChatComponent({ userId, onPress, chatId }) {
       <ProfilePicture userData={user} width={80} height={80} />
 
       <View style={styles.contextView}>
+        {
+          unreadMessages.length != 0
+            ? <View
+              id='newmessage'
+              style={styles.newMessageContainer}>
+              <Text
+                id='number'
+                style={{ color: 'white', fontWeight: '600' }}>
+                {unreadMessages.length}
+              </Text>
+            </View>
+            : null
+        }
         <View style={styles.topView}>
           <Text style={styles.titleText}> {user.name} {user.surname} </Text>
-          <Text> {time} </Text>
+          <Text style={{ color: unreadMessages.length != 0 ? '#79c400' : 'gray', fontWeight: '600', marginRight: 7, fontSize: 15 }}> {time} </Text>
         </View>
         <View style={styles.bottView}>
-          <Text style={styles.subtitleText}> {
+          <Text numberOfLines={2} style={styles.subtitleText}> {
             subtitle
           } </Text>
         </View>
@@ -83,6 +103,18 @@ export default function ChatComponent({ userId, onPress, chatId }) {
 }
 
 const styles = StyleSheet.create({
+  newMessageContainer: {
+    position: 'absolute',
+    backgroundColor: '#79c400',
+    right: 10,
+    top: 40,
+    borderRadius: 200,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+  },
   titleText: {
     color: 'black',
     fontSize: 20,
@@ -98,7 +130,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     height: 80,
-    marginTop: 5
+    marginTop: 5,
   },
   imageText: {
     color: 'white',
@@ -107,7 +139,7 @@ const styles = StyleSheet.create({
   },
   contextView: {
     flex: 9,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   topView: {
     flex: 4,
@@ -115,6 +147,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   bottView: {
-    flex: 5
+    flex: 5,
+    width: 250,
+    marginLeft: 5,
   }
 })
