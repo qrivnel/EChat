@@ -37,7 +37,7 @@ export default function LoginScreen({ setIsAuth, navigation }) {
 
     return (
         <SafeAreaView style={styles.mainView}>
-            <Image style={{ width: 330, height: 250, resizeMode: 'stretch', alignSelf: 'center' }} source={EChatLogo} />
+            <Image style={{ width: 330, height: 250, alignSelf: 'center', aspectRatio: 3/2, objectFit: 'contain' }} source={EChatLogo} />
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <View style={styles.textInputsView}>
                     <TextInput

@@ -45,8 +45,8 @@ export default function SignupScreen({ navigation }) {
       if (checkPasswords && name != '' && surname != '' && !usernameCheck && username != '' && password != '' && passwordAgain != '') {
         setIsLoading(true)
         firestore().collection('users').add({
-          about: '',
-          age: 0,
+          about: 'about',
+          age: 18,
           eposta: '@gmail.com',
           lastActivity: '',
           name: name,
@@ -54,7 +54,8 @@ export default function SignupScreen({ navigation }) {
           status: false,
           surname: surname,
           telno: '',
-          username: username
+          username: username,
+          bgColor: '#000000'
         }).then(() => navigation.navigate('login'))
       }
     } catch (error) {

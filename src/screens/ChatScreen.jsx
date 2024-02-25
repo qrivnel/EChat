@@ -57,10 +57,37 @@ export default function ChatScreen({ route, navigation, currentUser }) {
             }
         }
     }, [])
+
     const scrollToBottom = () => {
         if (flatListRef.current != undefined)
             flatListRef.current.scrollToEnd({ animated: true });
     };
+
+    const [scrollMaxY, setScrollMaxY] = useState(-1)
+    const [currentScrollY, setCurrentScrollY] = useState(-1)
+    useEffect(() => {
+        if (currentScrollY > scrollMaxY - 500)
+            setTimeout(() => {
+                if (isLoaded)
+                    scrollToBottom()
+            }, 300);
+    }, [messages])
+
+
+    const changeMessageStatus = () => {
+        firestore().collection('chats').doc(route.params.chatId).get()
+            .then(res => {
+                const updatedMessages = res.data().messages.map(message => {
+                    if (message.user.id != currentUser.id && message.status == 'delivered')
+                        message.status = 'readed'
+                    return message
+                })
+                firestore().collection('chats').doc(route.params.chatId)
+                    .update({
+                        messages: updatedMessages
+                    })
+            })
+    }
 
 
     const sendMessage = async () => {
@@ -77,8 +104,9 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         id: currentUser.id,
                         username: currentUser.data().username
                     },
-                    text: message,
+                    text: message.trim(),
                     createdAt: new Date(),
+                    status: 'delivered'
                 })
             }).then(() => {
                 setSendMessageButtonDisabled(false)
@@ -102,16 +130,20 @@ export default function ChatScreen({ route, navigation, currentUser }) {
     }
 
     const navigateToContactScreen = () => {
-        navigation.navigate('contact')
+        navigation.navigate('contact', { userId: route.params.userId })
     }
 
     const [isLoaded, setIsLoaded] = useState(false)
     useEffect(() => {
-        setTimeout(() => {
+        const loadingTimeOut = setTimeout(() => {
             if (flatListRef.current != undefined)
                 flatListRef.current.scrollToEnd({ animated: false });
             setIsLoaded(true)
         }, 700)
+
+        return () => {
+            clearTimeout(loadingTimeOut)
+        }
     }, [])
 
     return user != undefined
@@ -144,17 +176,24 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         initialNumToRender={1000}
                         renderItem={({ item, index }) => {
                             return <Message
-                                messageIndex={item.id}
+                                currentUser={currentUser}
+                                messageStatus={item.status}
                                 user={item.user} text={item.text}
                                 time={new Date(item.createdAt.seconds * 1000)}
-                                bgcolor={
+                                position={
                                     item.user.id == currentUser.id
-                                        ? 'lightgreen'
-                                        : 'lightgray'
+                                        ? 'right'
+                                        : 'left'
                                 } />
                         }}
                         keyExtractor={item => item.id}
                         inverted={!isLoaded}
+                        onScroll={(event) => {
+                            if (event.nativeEvent.contentOffset.y > scrollMaxY)
+                                setScrollMaxY(event.nativeEvent.contentOffset.y)
+                            setCurrentScrollY(event.nativeEvent.contentOffset.y)
+                        }}
+                        onEndReached={changeMessageStatus}
                     />
                     : <View style={styles.noMessageView}><Text style={styles.infoMessage}>Bir şeyler yaz..</Text></View>
             }
@@ -174,15 +213,16 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         }}
                         onChangeText={setMessage}
                         onFocus={() => {
-                            setTimeout(() => {
-                                if (flatListRef.current != undefined)
-                                    flatListRef.current.scrollToEnd({ animated: true });
-                            }, 300);
+                            if (currentScrollY > scrollMaxY - 500)
+                                setTimeout(() => {
+                                    if (flatListRef.current != undefined)
+                                        scrollToBottom()
+                                }, 300);
                         }}
                     />
                     <TouchableOpacity
                         onPress={() => {
-                            if (message != undefined && message != '') {
+                            if (message != undefined && message.trim() != '') {
                                 setSendMessageButtonDisabled(true)
                                 sendMessage()
                             }

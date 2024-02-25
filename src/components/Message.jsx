@@ -1,37 +1,54 @@
-import { Platform, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Platform, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
-export default function Message({ messageIndex, user, text, time, bgcolor }) {
+//SVGS
+import DoubleTickIcon from '../assets/DoubleTickIcon.svg'
+
+export default function Message({ messageStatus, user, currentUser, text, time, position }) {
     return (
         <TouchableOpacity
-            style={[styles.mainView, { backgroundColor: bgcolor }]}>
+            style={[styles.mainView, { backgroundColor: position == 'right' ? 'lightgreen' : 'lightgray', alignSelf: position == 'right' ? 'flex-end' : 'flex-start' }]}>
             <Text style={styles.messageText}> {text}</Text>
-            <Text style={{ fontSize: 15, color: 'gray', position: 'absolute', bottom: 0, right: 5 }}>{
-                `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
-            }</Text>
+            <View
+                id='bottomview'
+                style={styles.bottomContainer}>
+                <Text style={styles.timeText}>{
+                    `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
+                }</Text>
+                {
+                    currentUser.id == user.id
+                        ? <DoubleTickIcon width={17} height={17} fill={messageStatus == 'delivered' ? 'gray' : 'blue'} />
+                        : null
+                }
+            </View>
         </TouchableOpacity>
     )
 }
 
 const styles = StyleSheet.create({
+    bottomContainer: {
+        flexDirection: 'row',
+        alignSelf: 'flex-end',
+        alignItems: 'flex-end',
+    },
+    timeText: {
+        fontSize: 12.5,
+        color: 'gray',
+        marginRight: 3,
+    },
     messageText: {
         color: 'black',
         fontSize: 20,
     },
-    usernameText: {
-        color: 'black',
-        fontSize: 20,
-        fontWeight: 'bold',
-        paddingHorizontal: Platform.OS == 'ios' ? 10 : 0,
-        paddingVertical: Platform.OS == 'ios' ? 8 : 0,
-    },
     mainView: {
-        flexWrap: 'wrap',
-        flexDirection: 'row',
+        minWidth: 100,
+        maxWidth: 250,
+        justifyContent: 'space-between',
         borderWidth: 1,
         borderRadius: 10,
         marginVertical: 5,
         marginHorizontal: 5,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        paddingVertical: 10
     }
 })

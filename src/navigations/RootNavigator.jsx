@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function RootNavigator() {
     const [isAuth, setIsAuth] = useState(false)
 
+
     useEffect(() => {
         AsyncStorage.getItem('currentuser')
             .then(res => {
