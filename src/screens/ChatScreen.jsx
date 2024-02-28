@@ -11,6 +11,7 @@ import LeftArrow from '../assets/left-arrow.svg'
 import SendIcon from '../assets/SendIcon.svg'
 
 export default function ChatScreen({ route, navigation, currentUser }) {
+
     const flatListRef = useRef();
     const textInputRef = useRef();
 
@@ -22,12 +23,8 @@ export default function ChatScreen({ route, navigation, currentUser }) {
     const [message, setMessage] = useState()
 
     useEffect(() => {
-        try {
-            firestore().collection('users').doc(route.params.userId).get()
-                .then(res => setUser(res))
-        } catch (error) {
-            console.log(error);
-        }
+        firestore().collection('users').doc(route.params.userId)
+            .onSnapshot(res => setUser(res))
     }, [])
 
     useEffect(() => {
@@ -74,7 +71,7 @@ export default function ChatScreen({ route, navigation, currentUser }) {
     }, [messages])
 
 
-    const changeMessageStatus = () => {
+    const updateMessageStatus = () => {
         firestore().collection('chats').doc(route.params.chatId).get()
             .then(res => {
                 const updatedMessages = res.data().messages.map(message => {
@@ -88,7 +85,6 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                     })
             })
     }
-
 
     const sendMessage = async () => {
         try {
@@ -146,6 +142,40 @@ export default function ChatScreen({ route, navigation, currentUser }) {
         }
     }, [])
 
+    const prepareTime = () => {
+        const today = new Date()
+        return `${today.getHours() < 10 ? '0' + today.getHours() : today.getHours()}:${today.getMinutes() < 10 ? '0' + today.getMinutes() : today.getMinutes()}`
+    }
+
+    const [userStatus, setUserStatus] = useState()
+    useEffect(() => {
+        if (user != undefined) {
+            firestore().collection('users').doc(user.id)
+                .onSnapshot(u => {
+                    if (u.data().status == 'active')
+                        setUserStatus('Çevrimiçi')
+                    else
+                        setUserStatus(`son görülme ${prepareTime()}`)
+                })
+            firestore().collection('chats').doc(route.params.chatId)
+                .onSnapshot(c => {
+                    firestore().collection('users').doc(user.id).get()
+                        .then(u => {
+                            if (u.data().status == 'active') {
+                                c.data().users.map(cc => {
+                                    if (cc.id == user.id && cc.status == 'typing')
+                                        setUserStatus('yazıyor...')
+                                    else if (cc.id == user.id && cc.status == '')
+                                        setUserStatus('Çevrimiçi')
+
+                                })
+                            }
+                        })
+                })
+        }
+    }, [user])
+
+
     return user != undefined
         ? <SafeAreaView style={{ flex: 1 }}>
             <View
@@ -163,9 +193,14 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                     style={{ flexDirection: 'row', alignItems: 'center' }}
                     onPress={navigateToContactScreen}>
                     <ProfilePicture userData={user.data()} width={50} height={50} />
-                    <Text
-                        style={styles.usernameText}
-                    > {user.data().username} </Text>
+                    <View>
+                        <Text
+                            style={styles.usernameText}
+                        > {user.data().username} </Text>
+                        {
+                            <Text>{userStatus}</Text>
+                        }
+                    </View>
                 </TouchableOpacity>
             </View>
             {
@@ -186,14 +221,13 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                                         : 'left'
                                 } />
                         }}
-                        keyExtractor={item => item.id}
                         inverted={!isLoaded}
                         onScroll={(event) => {
                             if (event.nativeEvent.contentOffset.y > scrollMaxY)
                                 setScrollMaxY(event.nativeEvent.contentOffset.y)
                             setCurrentScrollY(event.nativeEvent.contentOffset.y)
                         }}
-                        onEndReached={changeMessageStatus}
+                        onEndReached={updateMessageStatus}
                     />
                     : <View style={styles.noMessageView}><Text style={styles.infoMessage}>Bir şeyler yaz..</Text></View>
             }
@@ -211,7 +245,25 @@ export default function ChatScreen({ route, navigation, currentUser }) {
                         onContentSizeChange={(event) => {
                             changeInputHeight(event.nativeEvent.contentSize.height)
                         }}
-                        onChangeText={setMessage}
+                        onChangeText={value => {
+                            setMessage(value)
+                            if (userStatus != <Text> yazıyor... </Text>) {
+                                firestore().collection('chats').doc(route.params.chatId).get()
+                                    .then(res => {
+                                        const newUsers = res.data().users
+                                        newUsers.map(nu => {
+                                            if (nu.id == currentUser.id && value != '')
+                                                nu.status = 'typing'
+                                            else if (nu.id == currentUser.id && value == '')
+                                                nu.status = ''
+                                        })
+                                        firestore().collection('chats').doc(route.params.chatId)
+                                            .update({
+                                                users: newUsers
+                                            })
+                                    })
+                            }
+                        }}
                         onFocus={() => {
                             if (currentScrollY > scrollMaxY - 500)
                                 setTimeout(() => {
@@ -278,6 +330,6 @@ const styles = StyleSheet.create({
     usernameText: {
         color: 'black',
         fontSize: 25,
-        fontWeight: '400'
+        fontWeight: '400',
     }
 })

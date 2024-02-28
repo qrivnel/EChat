@@ -17,10 +17,15 @@ export default function ChatsScreen({ currentUser, navigation }) {
     try {
       if (currentUser != undefined)
         firestore().collection('chats')
-          .where('users', 'array-contains', currentUser.id)
           .onSnapshot(snapshot => {
             if (snapshot != null) {
-              const sortedChats = snapshot.docs
+              const currentUserChats = []
+              snapshot.docs
+                .map(doc => {
+                  if (doc.data().users[0].id == currentUser.id || doc.data().users[1].id == currentUser.id)
+                    currentUserChats.push(doc)
+                })
+              const sortedChats = currentUserChats
                 .map(doc => doc)
                 .sort((a, b) => {
                   if (a.data().messages.length != 0 && b.data().messages.length != 0) {
@@ -40,68 +45,47 @@ export default function ChatsScreen({ currentUser, navigation }) {
 
   const addChat = () => {
     Platform.OS == 'ios'
-      ? Alert.prompt('Bir kullanıcı adı girin', 'Kullanıcı adı', (value) => createChatForIos(value))
+      ? Alert.prompt('Bir kullanıcı adı girin', 'Kullanıcı adı', (value) => createChat(value))
       : setModalVisible(true)
   }
 
-  const createChatForIos = async (value) => {
-    try {
-      if (value != undefined && value != '' && value != null) {
-        const getUser = await firestore().collection('users')
-          .where('username', '==', value).get()
-        if (getUser.docs.length != 0) {
-          if (getUser.docs[0].id != currentUser.id) {
-            firestore().collection('chats')
-              .where('users', 'array-contains', currentUser.id)
-              .get()
-              .then(res => {
-                const filteredRes = res.docs.filter(doc => doc.data().users.includes(getUser.docs[0].id))
-                filteredRes.length == 0
-                  ? firestore().collection('chats').add({
-                    messages: [],
-                    users: [
-                      currentUser.id,
-                      getUser.docs[0].id
-                    ]
-                  }).then(res1 => {
-                    firestore().collection('chats').doc(res1.id).get()
-                      .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
-                  }) : Alert.alert('Sohbet mevcut')
-              })
-          } else
-            Alert.alert('Kendinizle sohbet oluşturamazsınız.')
-        } else
-          Alert.alert('Kullanıcı mevcut değil')
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const createChat = async () => {
-    try {
+  const createChat = (value) => {
+    const create = async (username) => {
       setModalVisible(false)
       if (username != undefined && username != '') {
         const getUser = await firestore().collection('users')
           .where('username', '==', username).get()
         if (getUser.docs.length != 0) {
           if (getUser.docs[0].id != currentUser.id) {
-            firestore().collection('chats')
-              .where('users', 'array-contains', currentUser.id)
-              .get()
+            firestore().collection('chats').get()
               .then(res => {
-                const filteredRes = res.docs.filter(doc => doc.data().users.includes(getUser.docs[0].id))
-                filteredRes.length == 0
+                isExists = false
+                res.docs.map(doc => (
+                  (doc.data().users[0].id == currentUser.id || doc.data().users[1].id == currentUser.id)
+                    &&
+                    (doc.data().users[0].id == getUser.docs[0].id || doc.data().users[1].id == getUser.docs[0].id)
+                    ? isExists = true
+                    : isExists = false
+                ))
+                !isExists
                   ? firestore().collection('chats').add({
                     messages: [],
                     users: [
-                      currentUser.id,
-                      getUser.docs[0].id
+                      {
+                        id: currentUser.id,
+                        status: ''
+                      },
+                      {
+                        id: getUser.docs[0].id,
+                        status: ''
+                      }
                     ]
                   }).then(res1 => {
                     firestore().collection('chats').doc(res1.id).get()
-                      .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user != currentUser.id) }))
-                  }) : Alert.alert('Sohbet mevcut')
+                      .then((res2) => navigation.navigate('chatdetail', { chatId: res1.id, userId: res2.data().users.find(user => user.id != currentUser.id).id }))
+                  })
+                  : Alert.alert('Sohbet mevcut')
+
               })
           } else {
             Alert.alert('Kendinizle sohbet oluşturamazsınız.')
@@ -110,11 +94,15 @@ export default function ChatsScreen({ currentUser, navigation }) {
           Alert.alert('Kullanıcı mevcut değil')
       }
       setUsername()
+    }
+    try {
+      typeof value != 'string'
+        ? create(username)
+        : create(value)
     } catch (error) {
       console.log(error);
     }
   }
-
 
   return currentUser != undefined
     ? <SafeAreaView
@@ -127,9 +115,9 @@ export default function ChatsScreen({ currentUser, navigation }) {
             renderItem={({ item }) => (
               <View>
                 <ChatComponent
-                  userId={item.data().users.find(user => user != currentUser.id)}
+                  userId={item.data().users.find(user => user.id != currentUser.id).id}
                   chatId={item.id}
-                  onPress={() => navigation.navigate('chatdetail', { chatId: item.id, userId: item.data().users.find(user => user != currentUser.id,) })} />
+                  onPress={() => navigation.navigate('chatdetail', { chatId: item.id, userId: item.data().users.find(user => user.id != currentUser.id).id })} />
                 <View style={styles.serprator}></View>
               </View>
             )

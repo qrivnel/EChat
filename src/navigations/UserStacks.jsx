@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, AppState } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
 //SCREENS
@@ -18,11 +18,44 @@ const Stack = createNativeStackNavigator();
 
 export default function UserStacks({ setIsAuth }) {
     const [currentUser, setCurrentUser] = useState()
+    const [appState, setAppState] = useState(AppState.currentState);
 
     useEffect(() => {
         getCurrentUser()
+        setCurrentUserStatus()
+        const handleAppStateChange = (nextAppState) => {
+            setAppState(nextAppState)
+        };
+        AppState.addEventListener('change', handleAppStateChange);
     }, [])
 
+    useEffect(() => {
+        try {
+            if (currentUser != undefined)
+                firestore().collection('users').doc(currentUser.id)
+                    .update({
+                        status: appState,
+                        lastActivity: new Date(),
+                    })
+        } catch (error) {
+            console.log(error);
+        }
+    }, [appState])
+
+
+    const setCurrentUserStatus = () => {
+        try {
+            AsyncStorage.getItem('currentuser')
+                .then(res => {
+                    firestore().collection('users').doc(res)
+                        .update({
+                            status: appState
+                        })
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    }
     const getCurrentUser = () => {
         try {
             AsyncStorage.getItem('currentuser')

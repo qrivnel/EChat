@@ -5,6 +5,9 @@ import React, { useState, useEffect } from 'react'
 import DoubleTickIcon from '../assets/DoubleTickIcon.svg'
 
 export default function Message({ messageStatus, user, currentUser, text, time, position }) {
+    const prepareTime = () => {
+        return `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
+    }
     return (
         <TouchableOpacity
             style={[styles.mainView, { backgroundColor: position == 'right' ? 'lightgreen' : 'lightgray', alignSelf: position == 'right' ? 'flex-end' : 'flex-start' }]}>
@@ -13,7 +16,7 @@ export default function Message({ messageStatus, user, currentUser, text, time, 
                 id='bottomview'
                 style={styles.bottomContainer}>
                 <Text style={styles.timeText}>{
-                    `${time.getHours() < 10 ? '0' + time.getHours() : time.getHours()}:${time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes()}`
+                    prepareTime()
                 }</Text>
                 {
                     currentUser.id == user.id
