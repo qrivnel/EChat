@@ -40,4 +40,4 @@ Here are some screenshots of the EChat app:
 
 ### 1. Clone the Repository:
 ```bash
-git clone https://github.com/username/EChat.git
+git clone https://github.com/qrivnel/EChat.git
