@@ -12,22 +12,22 @@
 Here are some screenshots of the EChat app:
 
 1. **Chat Screen**:
-   ![Chat Screen](src/assets/images/chat-screen.png)
+   ![Chat Screen](src/assets/app-photos/chat-screen.png)
 
 2. **Chat Screen 2**:
-   ![Chat Screen 2](src/assets/images/chat-screen_2.png)
+   ![Chat Screen 2](src/assets/app-photos/chat-screen_2.png)
 
 3. **Chats Screen**:
-   ![Chats Screen](src/assets/images/chats-screen.png)
+   ![Chats Screen](src/assets/app-photos/chats-screen.png)
 
 4. **Login Screen**:
-   ![Login Screen](src/assets/images/login-screen.png)
+   ![Login Screen](src/assets/app-photos/login-screen.png)
 
 5. **Profile Screen**:
-   ![Profile Screen](src/assets/images/profile-screen.png)
+   ![Profile Screen](src/assets/app-photos/profile-screen.png)
 
 6. **Sign Up Screen**:
-   ![Sign Up Screen](src/assets/images/sign-up-screen.png)
+   ![Sign Up Screen](src/assets/app-photos/sign-up-screen.png)
 
 ## Technologies Used
 - **Frontend**: React (or React Native if you're targeting mobile apps)
