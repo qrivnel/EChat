@@ -1,4 +1,4 @@
-<p align="center">EChat - A Simple Messaging App<p>
+<h1 align="center">EChat - A Simple Messaging App<h1>
 
 **EChat** is a simple messaging application that allows users to send messages in a chat interface. One of its unique features is the ability to change the color of chat bubbles, making the user experience more customizable and visually appealing.
 
