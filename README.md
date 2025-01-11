@@ -15,7 +15,7 @@ Here are some screenshots of the EChat app:
    ![Chat Screen](src/assets/app-photos/chat-screen.png)
 
 2. **Chat Screen 2**:
-   ![Chat Screen 2](src/assets/app-photos/chat-screen_2.png)
+   ![Chat Screen 2](src/assets/app-photos/chat-screen2.png)
 
 3. **Chats Screen**:
    ![Chats Screen](src/assets/app-photos/chats-screen.png)
